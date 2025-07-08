@@ -14,10 +14,9 @@ const messages = [
 ];
 
 messages.push({
-      role: "user",
-      content: "How much money I spend this month?",
-    },
-)
+  role: "user",
+  content: "How much money I spend this month?",
+});
 
 async function main() {
   const completion = await groq.chat.completions.create({
@@ -66,6 +65,12 @@ async function main() {
     if (functionName === "getTotalExpenses") {
       result = getTotalExpenses(functionArgs);
     }
+
+    messages.push({
+      role: "tool",
+      content: result,
+      tool_call_id: tool.id,
+    });
   }
 
   const completion2 = await groq.chat.completions.create({
