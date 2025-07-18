@@ -16,7 +16,7 @@ const messages = [
             1. getTotalExpense({from, to}): string // Get total expense for a time period.
             2. addExpense({name, amount}): string // Add new expense to the expense database.
             
-            current datetime: ${new Date().toUTCString()}`
+            current datetime: ${new Date().toUTCString()}`,
   },
 ];
 
@@ -27,26 +27,25 @@ const messages = [
 // });
 
 async function main() {
-
   const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
+    input: process.stdin,
+    output: process.stdout,
+  });
 
   //this is for user
   while (true) {
-
-
-    const question = rl.question(`User: `);
+    const question = await new Promise((resolve) =>
+      rl.question("User: ", resolve)
+    );
 
     messages.push({
       role: "user",
       content: question,
     });
 
-    if(question == "bye" || question == "exit" || question == "quit") {
+    if (question == "bye" || question == "exit" || question == "quit") {
       break;
-    };
+    }
 
     //this is for agent
     while (true) {
@@ -86,12 +85,11 @@ async function main() {
                 properties: {
                   name: {
                     type: "string",
-                    description:
-                      "The name of the expense e.g., Bought an iphone ",
+                    description: "name of the expense e.g., Bought an iphone ",
                   },
                   amount: {
                     type: "number",
-                    description: "The amount of the expense e.g., 10000INR",
+                    description: "amount of the expense",
                   },
                 },
               },
@@ -106,7 +104,7 @@ async function main() {
       const toolCalls = completion.choices[0].message.tool_calls;
       if (!toolCalls) {
         console.log(`Assitant : ${completion.choices[0].message.content}`);
-        return;
+        break;
       }
 
       for (const tool of toolCalls) {
@@ -128,29 +126,27 @@ async function main() {
         });
 
       }
+
+      // console.log("===============");
+      // console.log("MESSAGES:", messages);
+      // console.log("===============");
+      // console.log(`DB: `, expenseDB);
     }
   }
+  rl.close();
 }
-
-console.log("===============");
-console.log("MESSAGES:", messages);
-console.log("===============");
-console.log(`DB: `, expenseDB);
 
 main();
 
 function getTotalExpense({ from, to }) {
-    // console.log('Calling getTotalExpense tool');
-
-    // In reality -> we call db here...
-    const expense = expenseDB.reduce((acc, item) => {
-        return acc + item.amount;
-    }, 0);
-    return `${expense} INR`;
+  const expense = expenseDB.reduce((acc, item) => {
+    return acc + item.amount;
+  }, 0);
+  return `${expense} INR`;
 }
 
 function addExpense({ name, amount }) {
-  console.log(`Adding expense: ${amount} for ${name}`);
+  console.log(`Adding ${amount} to expense db for ${name}`);
   expenseDB.push({ name, amount });
-  return "Expense added successfully";
+  return "Added to the database.";
 }
