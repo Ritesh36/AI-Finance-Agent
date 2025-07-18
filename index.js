@@ -1,7 +1,7 @@
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
 import readline from "readline";
-import e from "express";
+
 dotenv.config();
 
 const expenseDB = [];
@@ -11,25 +11,43 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const messages = [
   {
     role: "system",
-    content: `Your name is Jarvis, a helpful AI financial assistant. 
-          You keep track of user expenses and provide insights on spending habits. 
-          Current datetime: ${new Date().toUTCString()}.`,
+    content: `You are Jarvis, a personal finance assistant. Your task is to assist user with their expenses, balances and financial planning.
+            You have access to following tools:
+            1. getTotalExpense({from, to}): string // Get total expense for a time period.
+            2. addExpense({name, amount}): string // Add new expense to the expense database.
+            
+            current datetime: ${new Date().toUTCString()}`
   },
 ];
 
-messages.push({
-  role: "user",
-  content:
-    "Hi Jarvis, I want to track my expenses for this month. Please help me with that.",
-});
+// messages.push({
+//   role: "user",
+//   content:
+//     "Hey Jarvis, How much have I spent this month?",
+// });
 
 async function main() {
-  //this is for user
-  while (true) {
-    const rl = readline.createInterface({
+
+  const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
+
+  //this is for user
+  while (true) {
+
+
+    const question = rl.question(`User: `);
+
+    messages.push({
+      role: "user",
+      content: question,
+    });
+
+    if(question == "bye" || question == "exit" || question == "quit") {
+      break;
+    };
+
     //this is for agent
     while (true) {
       const completion = await groq.chat.completions.create({
@@ -39,7 +57,7 @@ async function main() {
           {
             type: "function",
             function: {
-              name: "getTotalExpenses",
+              name: "getTotalExpense",
               description: "Get the total expenses for the month",
               parameters: {
                 type: "object",
@@ -97,8 +115,8 @@ async function main() {
 
         let result = "";
 
-        if (functionName === "getTotalExpenses") {
-          result = getTotalExpenses(functionArgs);
+        if (functionName === "getTotalExpense") {
+          result = getTotalExpense(functionArgs);
         } else if (functionName === "addExpense") {
           result = addExpense(functionArgs);
         }
@@ -108,9 +126,8 @@ async function main() {
           content: result,
           tool_call_id: tool.id,
         });
-      }
 
-      // console.log(JSON.stringify(completion2.choices[0], null, 2));
+      }
     }
   }
 }
@@ -122,12 +139,14 @@ console.log(`DB: `, expenseDB);
 
 main();
 
-function getTotalExpenses({ from, to }) {
-  console.log("Calculating total expenses...");
-  const expense = expenseDB.reduce((total, expense) => {
-    return total + parseFloat(expense.amount);
-  }, 0);
-  return `${expense}INR`;
+function getTotalExpense({ from, to }) {
+    // console.log('Calling getTotalExpense tool');
+
+    // In reality -> we call db here...
+    const expense = expenseDB.reduce((acc, item) => {
+        return acc + item.amount;
+    }, 0);
+    return `${expense} INR`;
 }
 
 function addExpense({ name, amount }) {
