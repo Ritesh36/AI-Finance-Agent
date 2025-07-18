@@ -1,5 +1,6 @@
 import Groq from "groq-sdk";
 import dotenv from "dotenv";
+import readline from "readline";
 import e from "express";
 dotenv.config();
 
@@ -25,6 +26,10 @@ messages.push({
 async function main() {
   //this is for user
   while (true) {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
     //this is for agent
     while (true) {
       const completion = await groq.chat.completions.create({
