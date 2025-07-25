@@ -115,6 +115,13 @@ async function main() {
               },
             },
           },
+          {
+            type: "function",
+            function: {
+              name: "getMoneyBalance",
+              description: "Get remaining money balance from database.",
+            },
+          },
         ],
       });
 
