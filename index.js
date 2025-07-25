@@ -95,6 +95,26 @@ async function main() {
               },
             },
           },
+          {
+            type: "function",
+            function: {
+              name: "addIncome",
+              description: "Add new income entry to income database",
+              parameters: {
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                    description: "Name of the income. e.g., Got salary",
+                  },
+                  amount: {
+                    type: "string",
+                    description: "Amount of the income.",
+                  },
+                },
+              },
+            },
+          },
         ],
       });
 
@@ -124,7 +144,6 @@ async function main() {
           content: result,
           tool_call_id: tool.id,
         });
-
       }
 
       // console.log("===============");
@@ -152,13 +171,13 @@ function addExpense({ name, amount }) {
 }
 
 function addIncome({ name, amount }) {
-    incomeDB.push({ name, amount });
-    return 'Added to the income database.';
+  incomeDB.push({ name, amount });
+  return "Added to the income database.";
 }
 
 function getMoneyBalance() {
-    const totalIncome = incomeDB.reduce((acc, item) => acc + item.amount, 0);
-    const totalExpense = expenseDB.reduce((acc, item) => acc + item.amount, 0);
+  const totalIncome = incomeDB.reduce((acc, item) => acc + item.amount, 0);
+  const totalExpense = expenseDB.reduce((acc, item) => acc + item.amount, 0);
 
-    return `${totalIncome - totalExpense} INR`;
+  return `${totalIncome - totalExpense} INR`;
 }
