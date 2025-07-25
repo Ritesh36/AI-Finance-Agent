@@ -150,3 +150,15 @@ function addExpense({ name, amount }) {
   expenseDB.push({ name, amount });
   return "Added to the database.";
 }
+
+function addIncome({ name, amount }) {
+    incomeDB.push({ name, amount });
+    return 'Added to the income database.';
+}
+
+function getMoneyBalance() {
+    const totalIncome = incomeDB.reduce((acc, item) => acc + item.amount, 0);
+    const totalExpense = expenseDB.reduce((acc, item) => acc + item.amount, 0);
+
+    return `${totalIncome - totalExpense} INR`;
+}
