@@ -144,7 +144,10 @@ async function main() {
           result = getTotalExpense(functionArgs);
         } else if (functionName === "addExpense") {
           result = addExpense(functionArgs);
-        }
+        } else if( functionName == "addIncome") {
+          result = addIncome(functionArgs);
+        } else if (functionName == "getMoneyBalance") {
+          result = getMoneyBalance();
 
         messages.push({
           role: "tool",
