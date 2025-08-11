@@ -4,7 +4,9 @@ import readline from "readline";
 
 dotenv.config();
 
+
 const expenseDB = [];
+const incomeDB = [];
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -108,7 +110,7 @@ async function main() {
                     description: "Name of the income. e.g., Got salary",
                   },
                   amount: {
-                    type: "string",
+                    type: "number",
                     description: "Amount of the income.",
                   },
                 },
@@ -136,7 +138,12 @@ async function main() {
 
       for (const tool of toolCalls) {
         const functionName = tool.function.name;
-        const functionArgs = JSON.parse(tool.function.arguments);
+        let functionArgs = null;
+        try {
+          functionArgs = JSON.parse(tool.function.arguments);
+        } catch (e) {
+          functionArgs = null;
+        }
 
         let result = "";
 
@@ -148,6 +155,7 @@ async function main() {
           result = addIncome(functionArgs);
         } else if (functionName == "getMoneyBalance") {
           result = getMoneyBalance();
+        }
 
         messages.push({
           role: "tool",
